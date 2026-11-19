@@ -18,6 +18,8 @@ jobs:
       # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       # 2. Setup Python
       - name: Setup Python
