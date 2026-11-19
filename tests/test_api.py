@@ -1,55 +1,143 @@
+
 from fastapi.testclient import TestClient
 import numpy as np
 import pytest
+
 from backend.main import app, models
+
+
+# --------------------------------------------------
+# FAKE MODEL FOR API TESTING
+# --------------------------------------------------
 
 class FakeModel:
     def __init__(self, probability=0.2):
         self.probability = probability
+
     def predict_proba(self, features):
-        return np.array([[1-self.probability, self.probability]])
+        return np.array([
+            [1 - self.probability, self.probability]
+        ])
+
+
+# --------------------------------------------------
+# TEST INPUTS - REAL KAGGLE FEATURES
+# --------------------------------------------------
+
+CREDIT_PAYLOAD = {
+    "status": "A11",
+    "duration": 24,
+    "credit_history": "A34",
+    "purpose": "A43",
+    "amount": 20000,
+    "savings": "A65",
+    "employment_duration": "A73",
+    "installment_rate": 2,
+    "personal_status_sex": "A93",
+    "other_debtors": "A101",
+    "present_residence": 2,
+    "property": "A121",
+    "age": 30,
+    "other_installment_plans": "A143",
+    "housing": "A152",
+    "number_credits": 1,
+    "job": "A173",
+    "people_liable": 1,
+    "telephone": "A191",
+    "foreign_worker": "A201"
+}
+
+
+FRAUD_PAYLOAD = {
+    **{
+        f"V{i}": 0.0
+        for i in range(1, 29)
+    },
+    "Amount": 2500.0
+}
+
+
+# --------------------------------------------------
+# FIXTURES
+# --------------------------------------------------
 
 @pytest.fixture(autouse=True)
 def inject_models():
     old = models.copy()
+
     models["credit"] = FakeModel(0.2)
     models["fraud"] = FakeModel(0.8)
+
     yield
+
     models.update(old)
+
 
 @pytest.fixture
 def client():
-    with TestClient(app) as c:
-        yield c
+    with TestClient(app) as test_client:
+        yield test_client
+
+
+# --------------------------------------------------
+# HEALTH TEST
+# --------------------------------------------------
 
 def test_health(client):
     response = client.get("/health")
+
     assert response.status_code == 200
     assert response.json()["status"] == "healthy"
 
+
+# --------------------------------------------------
+# CREDIT PREDICTION TEST
+# --------------------------------------------------
+
 def test_credit_prediction(client):
-    response = client.post("/api/credit/predict", json={
-        "annual_income": 80000, "loan_amount": 20000,
-        "credit_score": 720, "debt_to_income": 0.25,
-        "employment_years": 6, "previous_defaults": 0
-    })
+    response = client.post(
+        "/api/credit/predict",
+        json=CREDIT_PAYLOAD
+    )
+
     assert response.status_code == 200
-    assert response.json()["risk_band"] == "Low Risk"
+
+    result = response.json()
+
+    assert result["risk_band"] == "Low Risk"
+    assert result["default_probability"] == 0.2
+
+
+# --------------------------------------------------
+# FRAUD PREDICTION TEST
+# --------------------------------------------------
 
 def test_fraud_prediction(client):
-    response = client.post("/api/fraud/predict", json={
-        "amount": 2500, "transaction_hour": 2,
-        "transactions_last_24h": 12, "distance_from_usual_km": 500,
-        "is_international": 1, "card_not_present": 1,
-        "merchant_risk_score": 0.9, "account_age_days": 20
-    })
+    response = client.post(
+        "/api/fraud/predict",
+        json=FRAUD_PAYLOAD
+    )
+
     assert response.status_code == 200
-    assert response.json()["decision"] == "Flag for investigation"
+
+    result = response.json()
+
+    assert result["decision"] == "Flag for investigation"
+    assert result["fraud_probability"] == 0.8
+
+
+# --------------------------------------------------
+# INVALID CREDIT INPUT TEST
+# --------------------------------------------------
 
 def test_invalid_credit_input(client):
-    response = client.post("/api/credit/predict", json={
-        "annual_income": -10, "loan_amount": 20000,
-        "credit_score": 720, "debt_to_income": 0.25,
-        "employment_years": 6, "previous_defaults": 0
-    })
+    invalid_payload = CREDIT_PAYLOAD.copy()
+
+    invalid_payload["amount"] = -10
+
+    response = client.post(
+        "/api/credit/predict",
+        json=invalid_payload
+    )
+
     assert response.status_code == 422
