@@ -1,0 +1,118 @@
+[
+    {
+        "feature": "V14",
+        "importance": 0.10014653731704562
+    },
+    {
+        "feature": "V12",
+        "importance": 0.08581454552163716
+    },
+    {
+        "feature": "V4",
+        "importance": 0.06395014389657694
+    },
+    {
+        "feature": "V17",
+        "importance": 0.06058538949290494
+    },
+    {
+        "feature": "V10",
+        "importance": 0.0546868495398792
+    },
+    {
+        "feature": "V11",
+        "importance": 0.03707347012012414
+    },
+    {
+        "feature": "V3",
+        "importance": 0.03484495933297827
+    },
+    {
+        "feature": "V16",
+        "importance": 0.02110775925251651
+    },
+    {
+        "feature": "V1",
+        "importance": 0.011188505984639946
+    },
+    {
+        "feature": "V7",
+        "importance": 0.010325603011281168
+    },
+    {
+        "feature": "V8",
+        "importance": 0.008837966953933494
+    },
+    {
+        "feature": "V9",
+        "importance": 0.006873091038044379
+    },
+    {
+        "feature": "V18",
+        "importance": 0.006643198086398466
+    },
+    {
+        "feature": "V2",
+        "importance": 0.006450780194229705
+    },
+    {
+        "feature": "V5",
+        "importance": 0.004887544420387192
+    },
+    {
+        "feature": "V27",
+        "importance": 0.0039617570507776935
+    },
+    {
+        "feature": "V6",
+        "importance": 0.003876046153832597
+    },
+    {
+        "feature": "V13",
+        "importance": 0.0037850285794106364
+    },
+    {
+        "feature": "V28",
+        "importance": 0.003741050614949316
+    },
+    {
+        "feature": "V24",
+        "importance": 0.003479702386299636
+    },
+    {
+        "feature": "V26",
+        "importance": 0.0033708860819373744
+    },
+    {
+        "feature": "V21",
+        "importance": 0.0032904392707607004
+    },
+    {
+        "feature": "V25",
+        "importance": 0.0031171244740465305
+    },
+    {
+        "feature": "V22",
+        "importance": 0.0029632930140475596
+    },
+    {
+        "feature": "V19",
+        "importance": 0.0028632293721447756
+    },
+    {
+        "feature": "V15",
+        "importance": 0.0028330358612905274
+    },
+    {
+        "feature": "V20",
+        "importance": 0.002712242239041308
+    },
+    {
+        "feature": "V23",
+        "importance": 0.0021789436554236945
+    },
+    {
+        "feature": "Amount",
+        "importance": 4.9534171277344484e-05
+    }
+]

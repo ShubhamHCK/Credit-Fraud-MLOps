@@ -6,6 +6,7 @@ import joblib
 import mlflow
 import mlflow.sklearn
 import pandas as pd
+from mlflow.tracking import MlflowClient
 
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -30,6 +31,8 @@ DATA_PATH = ROOT / "datasets" / "raw" / "GermanCredit.csv"
 ARTIFACT_DIR = ROOT / "artifacts"
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
+REGISTERED_MODEL_NAME = "credit-scoring-model"
+
 
 def calculate_metrics(model, X_test, y_test):
     predictions = model.predict(X_test)
@@ -48,6 +51,27 @@ def calculate_metrics(model, X_test, y_test):
         "rows": int(len(y_test)),
         "features": int(X_test.shape[1]),
     }
+
+
+def register_champion(model_uri):
+    registered_model = mlflow.register_model(
+        model_uri=model_uri,
+        name=REGISTERED_MODEL_NAME,
+        await_registration_for=300,
+    )
+
+    client = MlflowClient()
+
+    client.set_registered_model_alias(
+        name=REGISTERED_MODEL_NAME,
+        alias="champion",
+        version=registered_model.version,
+    )
+
+    print("\nMODEL REGISTRY")
+    print("Registered model:", REGISTERED_MODEL_NAME)
+    print("Version:", registered_model.version)
+    print("Alias: champion")
 
 
 def main():
@@ -125,6 +149,7 @@ def main():
     best_metrics = None
     best_score = -1
     best_name = None
+    best_model_uri = None
 
     for name, classifier in models.items():
         print(f"\nTraining {name}...")
@@ -153,14 +178,16 @@ def main():
                 if isinstance(value, float)
             })
 
-            mlflow.sklearn.log_model(
+            model_info = mlflow.sklearn.log_model(
                 model,
                 name="credit-scoring-model",
-                skops_trusted_types=["numpy.dtype", "sklearn.tree._tree.Tree"],
+                skops_trusted_types=[
+                    "numpy.dtype",
+                    "sklearn.tree._tree.Tree",
+                ],
             )
 
             results.append(metrics)
-
             print(json.dumps(metrics, indent=4))
 
             if metrics["f1_score"] > best_score:
@@ -168,6 +195,7 @@ def main():
                 best_model = model
                 best_metrics = metrics
                 best_name = name
+                best_model_uri = model_info.model_uri
 
     best_metrics["selected_metric"] = "f1_score"
 
@@ -179,6 +207,9 @@ def main():
     with open(ARTIFACT_DIR / "credit_model_comparison.json", "w") as f:
         json.dump(results, f, indent=4)
 
+    # Register only the best-F1 model.
+    register_champion(best_model_uri)
+
     print("\nCREDIT MODEL COMPARISON")
     print(pd.DataFrame(results)[
         ["model", "accuracy", "precision", "recall",
@@ -186,6 +217,7 @@ def main():
     ].to_string(index=False))
 
     print(f"\nBest model: {best_name}")
+    print("Best F1 score:", best_score)
     print("Saved:", ARTIFACT_DIR / "credit.joblib")
 
 

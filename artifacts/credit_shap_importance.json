@@ -1,0 +1,246 @@
+[
+    {
+        "feature": "categorical__status_no checking account",
+        "importance": 0.4773800153212309
+    },
+    {
+        "feature": "categorical__credit_history_critical account/other credits existing",
+        "importance": 0.3333035445064162
+    },
+    {
+        "feature": "numeric__installment_rate",
+        "importance": 0.3227903136382783
+    },
+    {
+        "feature": "categorical__savings_... < 100 DM",
+        "importance": 0.28001265947198983
+    },
+    {
+        "feature": "categorical__personal_status_sex_male : single",
+        "importance": 0.26335381699827565
+    },
+    {
+        "feature": "categorical__status_... < 100 DM",
+        "importance": 0.26321776725115736
+    },
+    {
+        "feature": "numeric__duration",
+        "importance": 0.24526625244845046
+    },
+    {
+        "feature": "numeric__amount",
+        "importance": 0.23268798490000478
+    },
+    {
+        "feature": "categorical__employment_duration_4 <= ... < 7 years",
+        "importance": 0.1762272508760563
+    },
+    {
+        "feature": "categorical__property_unknown/no property",
+        "importance": 0.1737047533037172
+    },
+    {
+        "feature": "categorical__purpose_car (new)",
+        "importance": 0.1695083771534613
+    },
+    {
+        "feature": "categorical__property_real estate",
+        "importance": 0.1604984067012143
+    },
+    {
+        "feature": "categorical__other_installment_plans_none",
+        "importance": 0.14106858416819065
+    },
+    {
+        "feature": "categorical__purpose_car (used)",
+        "importance": 0.13838453239397092
+    },
+    {
+        "feature": "categorical__housing_rent",
+        "importance": 0.1360015624502475
+    },
+    {
+        "feature": "categorical__housing_for free",
+        "importance": 0.10966835541596977
+    },
+    {
+        "feature": "categorical__savings_unknown/no savings account",
+        "importance": 0.10766680577006871
+    },
+    {
+        "feature": "categorical__purpose_retraining",
+        "importance": 0.10543790146471697
+    },
+    {
+        "feature": "categorical__telephone_yes",
+        "importance": 0.10423531702530443
+    },
+    {
+        "feature": "categorical__other_installment_plans_bank",
+        "importance": 0.09893123389579507
+    },
+    {
+        "feature": "categorical__purpose_domestic appliances",
+        "importance": 0.09024444968692932
+    },
+    {
+        "feature": "numeric__number_credits",
+        "importance": 0.08978916673390082
+    },
+    {
+        "feature": "numeric__people_liable",
+        "importance": 0.08976378593032369
+    },
+    {
+        "feature": "categorical__status_0 <= ... < 200 DM",
+        "importance": 0.0820758185187497
+    },
+    {
+        "feature": "categorical__employment_duration_... < 1 year",
+        "importance": 0.07822570279566411
+    },
+    {
+        "feature": "categorical__property_building society savings agreement/life insurance",
+        "importance": 0.0677537961978846
+    },
+    {
+        "feature": "categorical__savings_... >= 1000 DM",
+        "importance": 0.0664158521279586
+    },
+    {
+        "feature": "categorical__telephone_no",
+        "importance": 0.06386754383399645
+    },
+    {
+        "feature": "categorical__property_car or other",
+        "importance": 0.05727409795986334
+    },
+    {
+        "feature": "categorical__job_skilled employee/official",
+        "importance": 0.05077997348286178
+    },
+    {
+        "feature": "numeric__age",
+        "importance": 0.05076294549125439
+    },
+    {
+        "feature": "categorical__foreign_worker_no",
+        "importance": 0.046033767003972506
+    },
+    {
+        "feature": "categorical__job_unskilled - resident",
+        "importance": 0.044074388368892325
+    },
+    {
+        "feature": "categorical__other_debtors_guarantor",
+        "importance": 0.04305285944124389
+    },
+    {
+        "feature": "categorical__personal_status_sex_male : divorced/separated",
+        "importance": 0.042329413862454326
+    },
+    {
+        "feature": "categorical__foreign_worker_yes",
+        "importance": 0.04016007591505186
+    },
+    {
+        "feature": "categorical__savings_100 <= ... < 500 DM",
+        "importance": 0.04008944814695592
+    },
+    {
+        "feature": "categorical__employment_duration_1 <= ... < 4 years",
+        "importance": 0.036573714420327065
+    },
+    {
+        "feature": "categorical__credit_history_all credits at this bank paid back duly",
+        "importance": 0.031361997795022425
+    },
+    {
+        "feature": "categorical__other_debtors_co-applicant",
+        "importance": 0.030896715293587954
+    },
+    {
+        "feature": "categorical__credit_history_no credits taken/all credits paid back duly",
+        "importance": 0.030637955626405755
+    },
+    {
+        "feature": "categorical__purpose_radio/television",
+        "importance": 0.02866592902555467
+    },
+    {
+        "feature": "categorical__employment_duration_unemployed",
+        "importance": 0.028292945105692233
+    },
+    {
+        "feature": "categorical__purpose_others",
+        "importance": 0.023888744401808194
+    },
+    {
+        "feature": "categorical__employment_duration_... >= 7 years",
+        "importance": 0.023701033187729818
+    },
+    {
+        "feature": "categorical__personal_status_sex_female : divorced/separated/married",
+        "importance": 0.023004385266873918
+    },
+    {
+        "feature": "categorical__credit_history_existing credits paid back duly till now",
+        "importance": 0.02212455933911537
+    },
+    {
+        "feature": "numeric__present_residence",
+        "importance": 0.018625027629777347
+    },
+    {
+        "feature": "categorical__housing_own",
+        "importance": 0.01592263121357369
+    },
+    {
+        "feature": "categorical__purpose_education",
+        "importance": 0.015099971235328413
+    },
+    {
+        "feature": "categorical__savings_500 <= ... < 1000 DM",
+        "importance": 0.01416901165027018
+    },
+    {
+        "feature": "categorical__job_unemployed/unskilled - non-resident",
+        "importance": 0.01073623458823908
+    },
+    {
+        "feature": "categorical__purpose_furniture/equipment",
+        "importance": 0.009745246344615491
+    },
+    {
+        "feature": "categorical__other_installment_plans_stores",
+        "importance": 0.007691919222847141
+    },
+    {
+        "feature": "categorical__credit_history_delay in paying off in the past",
+        "importance": 0.007256543788583992
+    },
+    {
+        "feature": "categorical__status_... >= 200 DM / salary for at least 1 year",
+        "importance": 0.005607967260376784
+    },
+    {
+        "feature": "categorical__job_management/self-employed/highly qualified employee/officer",
+        "importance": 0.0029291457712341405
+    },
+    {
+        "feature": "categorical__purpose_business",
+        "importance": 0.0022764898240340923
+    },
+    {
+        "feature": "categorical__personal_status_sex_male : married/widowed",
+        "importance": 0.001395572031503154
+    },
+    {
+        "feature": "categorical__other_debtors_none",
+        "importance": 0.0005318023042639362
+    },
+    {
+        "feature": "categorical__purpose_repairs",
+        "importance": 0.00021644172575005472
+    }
+]

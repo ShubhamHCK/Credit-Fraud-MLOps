@@ -9,3 +9,7 @@ artifacts/*.joblib
 artifacts/*.json
 mlruns/
 .DS_Store
+
+# Local databases
+mlflow.db
+artifacts/*.db
