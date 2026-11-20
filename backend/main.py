@@ -53,20 +53,13 @@ FRAUD_FEATURES = [
 # --------------------------------------------------
 
 def get_db_connection():
-    connection = sqlite3.connect(
-        DB_PATH,
-        timeout=30,
-    )
-
+    connection = sqlite3.connect(DB_PATH, timeout=30)
     connection.row_factory = sqlite3.Row
-
     return connection
 
 
 def initialize_history_database():
-
     with get_db_connection() as connection:
-
         connection.execute("""
             CREATE TABLE IF NOT EXISTS prediction_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,16 +86,12 @@ def initialize_history_database():
 
 
 def load_history_from_database():
-
     return get_history_from_database(limit=1000)
 
 
 def get_history_from_database(domain=None, limit=1000):
-
     with get_db_connection() as connection:
-
         if domain:
-
             rows = connection.execute("""
                 SELECT id, domain, probability, decision, timestamp
                 FROM prediction_history
@@ -110,9 +99,7 @@ def get_history_from_database(domain=None, limit=1000):
                 ORDER BY id DESC
                 LIMIT ?
             """, (domain, limit)).fetchall()
-
         else:
-
             rows = connection.execute("""
                 SELECT id, domain, probability, decision, timestamp
                 FROM prediction_history
@@ -129,15 +116,10 @@ def save_prediction_to_database(
     decision,
     timestamp
 ):
-
     with get_db_connection() as connection:
-
         cursor = connection.execute("""
             INSERT INTO prediction_history (
-                domain,
-                probability,
-                decision,
-                timestamp
+                domain, probability, decision, timestamp
             )
             VALUES (?, ?, ?, ?)
         """, (
@@ -148,13 +130,10 @@ def save_prediction_to_database(
         ))
 
         connection.commit()
-
         return cursor.lastrowid
 
 
-# Initialize database and restore history
 initialize_history_database()
-
 history = load_history_from_database()
 
 
@@ -168,11 +147,14 @@ app = FastAPI(
     version="4.2.0",
 )
 
+# UPDATED CORS CONFIGURATION
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -197,31 +179,17 @@ explainers = {
 
 @app.on_event("startup")
 def load_models():
-
     for domain in ("credit", "fraud"):
-
         if models[domain] is None:
-
             try:
                 models[domain] = load_bundle(domain)
-
-                print(
-                    f"{domain.title()} model loaded successfully."
-                )
-
+                print(f"{domain.title()} model loaded successfully.")
             except FileNotFoundError:
-
                 models[domain] = None
-
-                print(
-                    f"{domain.title()} model artifact not found."
-                )
+                print(f"{domain.title()} model artifact not found.")
 
     restored_count = len(get_history_from_database())
-
-    print(
-        f"Restored {restored_count} predictions from SQLite."
-    )
+    print(f"Restored {restored_count} predictions from SQLite.")
 
 
 # --------------------------------------------------
@@ -229,7 +197,6 @@ def load_models():
 # --------------------------------------------------
 
 class CreditInput(BaseModel):
-
     status: str = Field(min_length=1)
     duration: int = Field(ge=1, le=120)
     credit_history: str = Field(min_length=1)
@@ -266,11 +233,9 @@ FraudInput = create_model(
 # --------------------------------------------------
 
 def get_model(domain):
-
     model = models.get(domain)
 
     if model is None:
-
         raise HTTPException(
             status_code=503,
             detail=(
@@ -283,7 +248,6 @@ def get_model(domain):
 
 
 def input_to_dict(data):
-
     if hasattr(data, "model_dump"):
         return data.model_dump()
 
@@ -291,12 +255,9 @@ def input_to_dict(data):
 
 
 def record(domain, probability, decision):
-
     probability = round(float(probability), 4)
-
     timestamp = datetime.now(timezone.utc).isoformat()
 
-    # Save permanently in SQLite
     prediction_id = save_prediction_to_database(
         domain=domain,
         probability=probability,
@@ -304,7 +265,6 @@ def record(domain, probability, decision):
         timestamp=timestamp,
     )
 
-    # Update in-memory cache
     entry = {
         "id": prediction_id,
         "domain": domain,
@@ -314,14 +274,12 @@ def record(domain, probability, decision):
     }
 
     history.insert(0, entry)
-
     del history[1000:]
 
     return entry
 
 
 def get_positive_class_values(values):
-
     if isinstance(values, list):
         values = values[1]
 
@@ -341,15 +299,12 @@ def get_positive_class_values(values):
 # --------------------------------------------------
 
 def initialize_credit_explainer():
-
     print("Initializing Credit SHAP explainer...")
 
     pipeline = get_model("credit")
-
     dataset_path = DATA_DIR / "GermanCredit.csv"
 
     if not dataset_path.exists():
-
         raise FileNotFoundError(
             f"Credit dataset not found: {dataset_path}"
         )
@@ -389,15 +344,12 @@ def initialize_credit_explainer():
 
 
 def initialize_fraud_explainer():
-
     print("Initializing Fraud SHAP explainer...")
 
     pipeline = get_model("fraud")
-
     dataset_path = DATA_DIR / "creditcard_2023.csv"
 
     if not dataset_path.exists():
-
         raise FileNotFoundError(
             f"Fraud dataset not found: {dataset_path}"
         )
@@ -438,14 +390,10 @@ def initialize_fraud_explainer():
 
 
 def get_explainer(domain):
-
     if explainers[domain] is None:
-
         try:
-
             if domain == "credit":
                 initialize_credit_explainer()
-
             elif domain == "fraud":
                 initialize_fraud_explainer()
 
@@ -453,12 +401,9 @@ def get_explainer(domain):
             raise
 
         except Exception as exc:
-
             raise HTTPException(
                 status_code=500,
-                detail=(
-                    f"Unable to initialize {domain} SHAP: {str(exc)}"
-                ),
+                detail=f"Unable to initialize {domain} SHAP: {str(exc)}",
             )
 
     return explainers[domain]
@@ -469,23 +414,16 @@ def get_explainer(domain):
 # --------------------------------------------------
 
 def explain_individual_prediction(domain, features):
-
     cached = get_explainer(domain)
 
     try:
-
         if domain == "credit":
-
-            transformed = cached["preprocessor"].transform(
-                features
-            )
+            transformed = cached["preprocessor"].transform(features)
 
             if hasattr(transformed, "toarray"):
                 transformed = transformed.toarray()
 
-            shap_values = cached["explainer"].shap_values(
-                transformed
-            )
+            shap_values = cached["explainer"].shap_values(transformed)
 
             feature_names = cached["feature_names"]
             display_values = np.asarray(transformed)[0]
@@ -493,18 +431,10 @@ def explain_individual_prediction(domain, features):
             positive_class = "Bad credit"
 
         else:
+            transformed = cached["imputer"].transform(features)
+            transformed = cached["scaler"].transform(transformed)
 
-            transformed = cached["imputer"].transform(
-                features
-            )
-
-            transformed = cached["scaler"].transform(
-                transformed
-            )
-
-            shap_values = cached["explainer"].shap_values(
-                transformed
-            )
+            shap_values = cached["explainer"].shap_values(transformed)
 
             feature_names = cached["feature_names"]
             display_values = features.iloc[0].to_numpy()
@@ -514,7 +444,6 @@ def explain_individual_prediction(domain, features):
         values = get_positive_class_values(shap_values)
 
         if len(values) != len(feature_names):
-
             raise ValueError(
                 "SHAP feature count does not match model feature count."
             )
@@ -526,7 +455,6 @@ def explain_individual_prediction(domain, features):
             values,
             display_values,
         ):
-
             contribution = float(value)
 
             results.append({
@@ -564,12 +492,9 @@ def explain_individual_prediction(domain, features):
         raise
 
     except Exception as exc:
-
         raise HTTPException(
             status_code=500,
-            detail=(
-                f"{domain.title()} SHAP calculation failed: {str(exc)}"
-            ),
+            detail=f"{domain.title()} SHAP calculation failed: {str(exc)}",
         )
 
 
@@ -579,7 +504,6 @@ def explain_individual_prediction(domain, features):
 
 @app.get("/")
 def home():
-
     return {
         "message": "Credit & Fraud API is running",
         "docs": "/docs",
@@ -588,10 +512,7 @@ def home():
 
 @app.get("/health")
 def health():
-
-    stored_predictions = len(
-        get_history_from_database()
-    )
+    stored_predictions = len(get_history_from_database())
 
     return {
         "status": "healthy",
@@ -611,13 +532,11 @@ def health():
 
 @app.get("/api/credit/metrics")
 def credit_metrics():
-
     return load_metrics("credit")
 
 
 @app.post("/api/credit/predict")
 def credit_predict(data: CreditInput):
-
     model = get_model("credit")
 
     features = pd.DataFrame(
@@ -626,18 +545,11 @@ def credit_predict(data: CreditInput):
     )
 
     try:
-
-        probability = float(
-            model.predict_proba(features)[0][1]
-        )
-
+        probability = float(model.predict_proba(features)[0][1])
     except Exception as exc:
-
         raise HTTPException(
             status_code=500,
-            detail=(
-                f"Credit model prediction failed: {str(exc)}"
-            ),
+            detail=f"Credit model prediction failed: {str(exc)}",
         )
 
     risk = (
@@ -665,7 +577,6 @@ def credit_predict(data: CreditInput):
 
 @app.post("/api/credit/explain")
 def credit_explain(data: CreditInput):
-
     model = get_model("credit")
 
     features = pd.DataFrame(
@@ -674,13 +585,8 @@ def credit_explain(data: CreditInput):
     )
 
     try:
-
-        probability = float(
-            model.predict_proba(features)[0][1]
-        )
-
+        probability = float(model.predict_proba(features)[0][1])
     except Exception as exc:
-
         raise HTTPException(
             status_code=500,
             detail=f"Credit prediction failed: {str(exc)}",
@@ -719,13 +625,11 @@ def credit_explain(data: CreditInput):
 
 @app.get("/api/fraud/metrics")
 def fraud_metrics():
-
     return load_metrics("fraud")
 
 
 @app.post("/api/fraud/predict")
 def fraud_predict(data: FraudInput):
-
     model = get_model("fraud")
 
     features = pd.DataFrame(
@@ -734,13 +638,8 @@ def fraud_predict(data: FraudInput):
     )
 
     try:
-
-        probability = float(
-            model.predict_proba(features)[0][1]
-        )
-
+        probability = float(model.predict_proba(features)[0][1])
     except Exception as exc:
-
         raise HTTPException(
             status_code=500,
             detail=f"Fraud model prediction failed: {str(exc)}",
@@ -766,7 +665,6 @@ def fraud_predict(data: FraudInput):
 
 @app.post("/api/fraud/explain")
 def fraud_explain(data: FraudInput):
-
     model = get_model("fraud")
 
     features = pd.DataFrame(
@@ -775,13 +673,8 @@ def fraud_explain(data: FraudInput):
     )
 
     try:
-
-        probability = float(
-            model.predict_proba(features)[0][1]
-        )
-
+        probability = float(model.predict_proba(features)[0][1])
     except Exception as exc:
-
         raise HTTPException(
             status_code=500,
             detail=f"Fraud prediction failed: {str(exc)}",
@@ -817,17 +710,13 @@ def fraud_explain(data: FraudInput):
 
 @app.get("/api/history")
 def get_history(domain: Optional[str] = None):
-
     if domain and domain not in ("credit", "fraud"):
-
         raise HTTPException(
             status_code=400,
             detail="domain must be credit or fraud",
         )
 
-    return get_history_from_database(
-        domain=domain
-    )
+    return get_history_from_database(domain=domain)
 
 
 # --------------------------------------------------
@@ -836,7 +725,6 @@ def get_history(domain: Optional[str] = None):
 
 @app.get("/api/monitoring/summary")
 def monitoring_summary():
-
     records = get_history_from_database()
 
     total = len(records)
@@ -911,10 +799,7 @@ def monitoring_summary():
             ),
         },
 
-        "average_probability": round(
-            average_probability, 4
-        ),
-
+        "average_probability": round(average_probability, 4),
         "recent_predictions": records[:10],
     }
 
@@ -925,35 +810,23 @@ def monitoring_summary():
 
 @app.get("/api/monitoring/trends")
 def monitoring_trends(domain: Optional[str] = None):
-
     if domain and domain not in ("credit", "fraud"):
-
         raise HTTPException(
             status_code=400,
             detail="domain must be credit or fraud",
         )
 
-    filtered_history = get_history_from_database(
-        domain=domain
-    )
-
+    filtered_history = get_history_from_database(domain=domain)
     daily_data = {}
 
     for item in filtered_history:
-
         try:
-
-            timestamp = datetime.fromisoformat(
-                item["timestamp"]
-            )
-
+            timestamp = datetime.fromisoformat(item["timestamp"])
             date_key = timestamp.date().isoformat()
-
         except (ValueError, TypeError):
             continue
 
         if date_key not in daily_data:
-
             daily_data[date_key] = {
                 "date": date_key,
                 "credit": 0,
@@ -981,9 +854,7 @@ def monitoring_trends(domain: Optional[str] = None):
 # --------------------------------------------------
 
 def load_shap_importance(domain):
-
     if domain not in ("credit", "fraud"):
-
         raise HTTPException(
             status_code=400,
             detail="Invalid domain",
@@ -992,34 +863,27 @@ def load_shap_importance(domain):
     path = SHAP_DIR / f"{domain}_shap_importance.json"
 
     if not path.exists():
-
         raise HTTPException(
             status_code=404,
             detail=f"{domain.title()} SHAP results not found",
         )
 
     try:
-
         with open(path, "r", encoding="utf-8") as file:
             return json.load(file)
 
     except Exception as exc:
-
         raise HTTPException(
             status_code=500,
-            detail=(
-                f"Unable to load SHAP results: {str(exc)}"
-            ),
+            detail=f"Unable to load SHAP results: {str(exc)}",
         )
 
 
 @app.get("/api/credit/shap")
 def credit_shap():
-
     return load_shap_importance("credit")
 
 
 @app.get("/api/fraud/shap")
 def fraud_shap():
-
     return load_shap_importance("fraud")

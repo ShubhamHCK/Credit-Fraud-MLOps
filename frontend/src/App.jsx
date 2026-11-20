@@ -1530,7 +1530,7 @@ export default function App() {
 
           <div>
             <strong>
-              RISK<span>OPS</span>
+              Cred<span>Shield</span>
             </strong>
 
             <small>ML PLATFORM</small>
