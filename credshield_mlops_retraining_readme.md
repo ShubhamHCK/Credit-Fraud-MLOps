@@ -8,7 +8,7 @@
 * **Student Name:** Shubham Singh  
 * **Roll Number:** 2400290100300  
 * **Course / Year:** B.Tech, 3rd Year CSE  
-* **Repository:** [github.com/vikas0327/Credit-Fraud-MLOps](https://github.com/ShubhamHCK/Credit-Fraud-MLOps)  
+* **Repository:** [github.com/ShubhamHCK/Credit-Fraud-MLOps](https://github.com/ShubhamHCK/Credit-Fraud-MLOps)  
 
 ---
 
